@@ -15,33 +15,43 @@ To replicate a text line utility in C. The program processes a string provided v
 5. -x : Replaces a specified word with another in a sample string 
 
 ## Sample Testing Routine
-1. -h
+> -h <br>
 <b>Command:</b> ./stringfun.c -h
+<br>
 <b>Output:-</b> 
+<br>
 usage: ./stringfun [-h|c|r|w|x] "string" [other args] 
-
-2. -c
+<br><br>
+> -c <br>
 <b>Command:</b> ./stringfun.c -c "Systems Programming is Great!"
+<br>
 <b>Output:-</b> 
+<br>
 Word Count: 4 
-
-3. -r
+<br><br>
+> -r <br>
 <b>Command:</b> ./stringfun.c -r "Systems Programming is Great!"
+<br>
 <b>Output:-</b> 
+<br>
 The string is reversed as follows: .....................!taerG si gnimmargorP smetsyS
-
-4. -w
+<br><br>
+> -w <br>
 <b>Command:</b> ./stringfun.c -w "Systems Programming is Great!"
+<br>
 <b>Output:-</b>
+<br>
 Word Print 
 ----
 1. Systems (7)
 2. Programming (11)
 3. is (2)
 4. Great! (6) 
-
-5. -x
+<br><br>
+> -x <br>
 <b>Command:</b> ./stringfun.c -x "Systems Programming is Great!" Programming Architecture
+<br>
 <b>Output:-</b>
+<br>
 Modified String: Systems Architecture is Great!....................
 
