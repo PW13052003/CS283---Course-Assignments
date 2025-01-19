@@ -49,9 +49,8 @@ Word Print
 3. is (2)<br>
 4. Great! (6) 
 <br><br>
-  -x <br>
+-x <br>
 <b>Command:</b> ./stringfun.c -x "Systems Programming is Great!" Programming Architecture
-<br>
 <b>Output:-</b>
 <br>
 Modified String: Systems Architecture is Great!....................
