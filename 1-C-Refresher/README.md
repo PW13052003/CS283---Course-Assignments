@@ -44,10 +44,12 @@ The string is reversed as follows: .....................!taerG si gnimmargorP sm
 <br>
 Word Print 
 <br>----<br>
-1. Systems (7)<br>
-2. Programming (11)<br>
-3. is (2)<br>
-4. Great! (6) 
+<ol>
+Systems (7)<br>
+Programming (11)<br>
+is (2)<br>
+Great! (6) 
+</ol>
 <br><br>
 ** EXTRA CREDIT **
   -x <br>
