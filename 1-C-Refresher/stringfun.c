@@ -74,7 +74,8 @@ int setup_buff(char *buff, char *user_str, int len){
 }
 
 void print_buff(char *buff, int len){
-    printf("Buffer:  ");
+    //printf("Buffer:  ");
+    printf("Buffer:  [%.*s]\n", len, buff); 
     for (int i=0; i<len; i++){
         putchar(*(buff+i));
     }
@@ -95,7 +96,7 @@ void usage(char *exename){
  * PURPOSE: To calculate the total number of words in a given buffer 
  * **************************************************
  */
-int count_words(char *buff, int len, int str_len){
+int count_words(char *buff, int len,  int str_len){
 	int word_count = 0;
 	bool in_word = false;
 
@@ -154,7 +155,7 @@ void word_print(char *buff, int str_len) {
 	int current_word_length = 0;
 	bool in_word = false;
 
-	printf("Word Print \n----\n");
+	printf("Word Print \n----------\n");
 
 	// Traverse through the length of the buffer
         // If the string length is exceeding the buffer, we ignore all characters after the buffer limit
@@ -297,8 +298,9 @@ int main(int argc, char *argv[]){
                 printf("Error counting words, rc = %d", rc);
                 exit(2);
             }
-            printf("Word Count: %d\n", rc);
-            break;
+	    printf("Word Count: %d\n", rc);
+            printf("Buffer:  [%.*s]\n", BUFFER_SZ, buff); 
+	    break;
 
 	case 'r':
 	    user_str_len = setup_buff(buff, input_string, BUFFER_SZ);
@@ -308,6 +310,7 @@ int main(int argc, char *argv[]){
 	
 	    reversed_string(buff, user_str_len);
 	    printf("The string is reversed as follows: %.*s\n", user_str_len, buff);
+	    printf("Buffer:  [%.*s]\n", BUFFER_SZ, buff); 
 	    break;
 
 	case 'w': 
@@ -317,6 +320,7 @@ int main(int argc, char *argv[]){
             }
 
             word_print(buff, user_str_len);
+	    printf("Buffer:  [%.*s]\n", BUFFER_SZ, buff);
             break;	    
 
     	case 'x':
@@ -333,6 +337,7 @@ int main(int argc, char *argv[]){
 	
     	    replace_word(buff, argv[3], argv[4], BUFFER_SZ);
     	    printf("Modified String: %.*s\n", user_str_len, buff);
+	    printf("Buffer:  [%.*s]\n", BUFFER_SZ, buff);
     	    break;	    
 
 	default:
@@ -340,7 +345,7 @@ int main(int argc, char *argv[]){
             exit(1);
     }
 
-    print_buff(buff,BUFFER_SZ);
+    //print_buff(buff, BUFFER_SZ);
     free(buff);
     exit(0);
 }
