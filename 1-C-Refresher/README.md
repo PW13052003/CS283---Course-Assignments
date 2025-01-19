@@ -45,13 +45,13 @@ The string is reversed as follows: .....................!taerG si gnimmargorP sm
 Word Print 
 <br>----<br>
 <ol>
-Systems (7)<br>
-Programming (11)<br>
-is (2)<br>
-Great! (6) 
+<li>Systems (7)</li>
+<li>Programming (11)</li>
+<li>is (2)</li>
+<li>Great!</li> (6) 
 </ol>
 <br><br>
-** EXTRA CREDIT **
+** EXTRA CREDIT ** <br>
   -x <br>
 <b>Command:</b> ./stringfun.c -x "Systems Programming is Great!" Programming Architecture
 <br>
