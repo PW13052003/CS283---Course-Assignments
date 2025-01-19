@@ -48,7 +48,7 @@ Word Print
 <li>Systems (7)</li>
 <li>Programming (11)</li>
 <li>is (2)</li>
-<li>Great!</li> (6) 
+<li>Great!(6)</li> 
 </ol>
 <br><br>
 ** EXTRA CREDIT ** <br>
