@@ -133,6 +133,11 @@ int count_words(char *buff, int len,  int str_len){
 void reversed_string(char *buff, int str_len) {
 	int start_of_string = 0;
 	int end_of_string = str_len - 1;
+	
+	while (end_of_string >= 0 && buff[end_of_string] == '.') {
+		end_of_string--;
+    	}
+
 	char swap_var;
 
 	// Reverse the string in place
@@ -162,7 +167,7 @@ void word_print(char *buff, int str_len) {
 	int current_word_length = 0;
 	bool in_word = false;
 
-	printf("Word Print \n----------\n");
+	printf("Word Print\n----------\n");
 
 	// Traverse through the length of the buffer
         // If the string length is exceeding the buffer, we ignore all characters after the buffer limit
@@ -172,9 +177,9 @@ void word_print(char *buff, int str_len) {
 			break;
         	}
 
-		if (buff[i] == ' ') { //|| buff[i] == '.') {
+		if (buff[i] == ' ') {  
 			if (in_word) {
-				printf(" (%d)\n", current_word_length);
+				printf("(%d)\n", current_word_length);
 				in_word = false;
 			}
 		} else {
@@ -186,16 +191,17 @@ void word_print(char *buff, int str_len) {
 				in_word = true;
 			}
 
-			printf("%c", buff[i]);
+			//printf("%c", buff[i]);
+			putchar(buff[i]);
 			current_word_length++;
 		}
 	}
 
 	if (in_word) {
-		printf(" (%d)\n", current_word_length);
+		printf("(%d)\n", current_word_length);
 	}
 
-	printf("\n");
+	//printf("\n");
 	// Print the total word count
     	printf("\nNumber of words returned: %d\n", word_count);
 }
