@@ -32,7 +32,8 @@ int setup_buff(char *buff, char *user_str, int len){
     char *buff_pointer = buff;
     char *string_pointer = user_str;
     int str_len = 0;
-    bool last_char = false;
+    //bool last_char = false;
+    bool last_char = true;
 
     // Loop through the input string
     while (*string_pointer != '\0') {
@@ -59,9 +60,15 @@ int setup_buff(char *buff, char *user_str, int len){
 
     }
 
-    if (str_len < len) {
-        *(buff + str_len) = '\0';
+    //if (str_len < len) {
+        //*(buff + str_len) = '\0';
+    //}
+
+    if (str_len > 0 && *(buff_pointer - 1) == ' ') {
+        buff_pointer--;
+        str_len--;
     }
+
 
     // Fill remaining buffer with dots (.....)
     while (str_len < len) {
@@ -160,7 +167,12 @@ void word_print(char *buff, int str_len) {
 	// Traverse through the length of the buffer
         // If the string length is exceeding the buffer, we ignore all characters after the buffer limit
 	for (int i = 0; i < str_len; i++) {
-		if (buff[i] == ' ' || buff[i] == '.') {
+		
+		if (buff[i] == '.') {
+			break;
+        	}
+
+		if (buff[i] == ' ') { //|| buff[i] == '.') {
 			if (in_word) {
 				printf(" (%d)\n", current_word_length);
 				in_word = false;
@@ -182,6 +194,10 @@ void word_print(char *buff, int str_len) {
 	if (in_word) {
 		printf(" (%d)\n", current_word_length);
 	}
+
+	printf("\n");
+	// Print the total word count
+    	printf("\nNumber of words returned: %d\n", word_count);
 }
 
 
@@ -208,6 +224,12 @@ void replace_word(char *buff, char *actual_word, char *replaced_word, int str_le
 	while (*buff_pointer != '\0') {
 		// Check if the current position matches the actual word
 		if (*buff_pointer == *actual_word && strncmp(buff_pointer, actual_word, actual_len) == 0) {
+			// Check if the replacement exceeds buffer size
+            		if ((temp_pointer - temp_buff) + replaced_len > str_len) {
+				fprintf(stderr, "Error: Replacement exceeds buffer size!\n");
+                		exit(3);
+            		}
+
 			// Copy replaced word into temp_buff
 			for (int i = 0; i < replaced_len; i++) {
 				*temp_pointer++ = replaced_word[i];
@@ -215,6 +237,10 @@ void replace_word(char *buff, char *actual_word, char *replaced_word, int str_le
 			buff_pointer += actual_len; // Skip the actual word in the buffer
 		}
 		else {
+			if ((temp_pointer - temp_buff) + 1 > str_len) {
+				fprintf(stderr, "Error: Buffer overflow detected!\n");
+				exit(3);
+            		}
 			// Copy current character into temp_buff
 			*temp_pointer++ = *buff_pointer++;
 		}
@@ -222,6 +248,12 @@ void replace_word(char *buff, char *actual_word, char *replaced_word, int str_le
 
 	*temp_pointer = '\0';
 	strncpy(buff, temp_buff, str_len);
+
+    	// Fill remaining buffer with dots
+    	int new_len = temp_pointer - temp_buff;
+    	for (int i = new_len; i < str_len; i++) {
+		buff[i] = '.';
+    	}
 }
 
 
@@ -309,7 +341,6 @@ int main(int argc, char *argv[]){
 	    }
 	
 	    reversed_string(buff, user_str_len);
-	    printf("The string is reversed as follows: %.*s\n", user_str_len, buff);
 	    printf("Buffer:  [%.*s]\n", BUFFER_SZ, buff); 
 	    break;
 
@@ -336,7 +367,8 @@ int main(int argc, char *argv[]){
     	    }
 	
     	    replace_word(buff, argv[3], argv[4], BUFFER_SZ);
-    	    printf("Modified String: %.*s\n", user_str_len, buff);
+    	    // Adjust the length of the string after replacement
+    	    user_str_len = strlen(buff); 
 	    printf("Buffer:  [%.*s]\n", BUFFER_SZ, buff);
     	    break;	    
 
