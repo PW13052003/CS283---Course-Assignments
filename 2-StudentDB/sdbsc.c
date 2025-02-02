@@ -323,9 +323,8 @@ int print_db(int fd)
 				row_one_printed = 1;
 			}
 			printf(STUDENT_PRINT_FMT_STRING, student.id, student.fname, student.lname, student.gpa/100.0);
-		} //else {
+		} 
 			
-		//}
 	}
 
 	// If no valid students found, print empty database
