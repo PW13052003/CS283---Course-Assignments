@@ -423,33 +423,10 @@ void print_student(student_t *s)
  *            M_ERR_DB_WRITE   error writing to db or tempdb file (adding student)
  *
  */
-int compress_db(int fd)
-{
-	int new_fd = open(TMP_DB_FILE, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-
-	if (new_fd < 0) {
-		printf(M_ERR_DB_CREATE);
-		return ERR_DB_FILE;
-	}
-
-	student_t student;
-
-	if (lseek (fd, 0, SEEK_SET) == -1) {
-		printf(M_ERR_DB_READ);
-		return ERR_DB_FILE;
-	}
-
-	while (read (fd, &student, STUDENT_RECORD_SIZE) != STUDENT_RECORD_SIZE) {
-		if (memcmp (&student, &EMPTY_STUDENT_RECORD, STUDENT_RECORD_SIZE) != 0) {
-			write(new_fd, &student, STUDENT_RECORD_SIZE);
-		}
-	}
-
-	close(fd);
-	rename(TMP_DB_FILE, DB_FILE);
-	printf(M_DB_COMPRESSED_OK);
-
-	return new_fd;
+int compress_db(int fd) {
+	// TODO
+    	printf(M_NOT_IMPL);
+    	return fd;
 }
 
 /*
@@ -658,7 +635,8 @@ int main(int argc, char *argv[])
         // example:  prog_name -x
 
         // remember compress_db returns a fd of the compressed database.
-        // we close it after this switch statement
+        close(fd);
+	// we close it after this switch statement
         fd = compress_db(fd);
         if (fd < 0)
             exit_code = EXIT_FAIL_DB;
