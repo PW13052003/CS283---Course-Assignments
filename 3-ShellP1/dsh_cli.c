@@ -46,12 +46,68 @@
  */
 int main()
 {
-    char *cmd_buff;
+    char cmd_buff[SH_CMD_MAX];
     int rc = 0;
     command_list_t clist;
 
-    printf(M_NOT_IMPL);
-    exit(EXIT_NOT_IMPL);
+    while (1) {
+	    // Print the shell prompt
+	    printf("%s", SH_PROMPT);
+
+	    if (fgets (cmd_buff, SH_CMD_MAX, stdin) == NULL) {
+		    printf("\n");
+		    break; // Exit on End of File
+	    }
+
+	    // Remove trailing newline
+	    cmd_buff [strcspn (cmd_buff, "\n")] = '\0';
+
+	    // Check if exit command is entered by the user and exit accordingly
+	    if (strcmp (cmd_buff, EXIT_CMD) == 0) {
+		    //break;
+		    exit(0);
+	    }
+
+	    /* ********* EXTRA CREDIT: HANDLING "dragon" COMMAND ********* */
+	    if (strcmp (cmd_buff, "dragon") == 0) {
+		    printf("Placeholder \n");
+		    continue;
+	    }
+	    /* *********************************************************** */
+
+	    // Parse command using build_cmd_list
+	    rc = build_cmd_list (cmd_buff, &clist);
+
+	    // Handle return codes
+	    if (rc == WARN_NO_CMDS) {
+		    // Print warning that no commands provided
+		    printf("%s", CMD_WARN_NO_CMD);
+	    }
+
+	    else if (rc == ERR_TOO_MANY_COMMANDS) {
+		    // Print error message that too many commands provided
+		    printf(CMD_ERR_PIPE_LIMIT, CMD_MAX);
+	    }
+
+	    else if (rc == OK) {
+		    // Print the total number of commands parsed
+		    printf(CMD_OK_HEADER, clist.num);
+		    
+		    // Iterate through each command in the command list
+		    for (int i = 0; i < clist.num; i++) {
+			    if (strlen (clist.commands[i].args) > 0) {
+				    // Print details for each command
+				    printf("<%d> %s [%s]\n",  i+1, clist.commands[i].exe, clist.commands[i].args);
+			    }
+
+			    else {
+				    printf("<%d> %s\n", i+1, clist.commands[i].exe);
+			    }
+		    }
+	    }
+    }
+
+    return 0;
 }
 
 
