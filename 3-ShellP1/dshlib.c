@@ -32,6 +32,7 @@
  *  Standard Library Functions You Might Want To Consider Using
  *      memset(), strcmp(), strcpy(), strtok(), strlen(), strchr()
  */
+
 int build_cmd_list(char *cmd_line, command_list_t *clist)
 {
     // Trim trailing spaces
@@ -47,7 +48,10 @@ int build_cmd_list(char *cmd_line, command_list_t *clist)
     char *cmd_token;
     int cmd_count = 0;
 
-    cmd_token = strtok (cmd_line, PIPE_STRING);
+    char *save_ptr;
+
+    // Split the input command line by pipes to extract individual commands
+    cmd_token = strtok_r (cmd_line, PIPE_STRING, &save_ptr);
     
     while (cmd_token != NULL) {
 
@@ -58,34 +62,45 @@ int build_cmd_list(char *cmd_line, command_list_t *clist)
 
 	   // Check if there are too many commands
 	   if (cmd_count >= CMD_MAX) {
-		  return ERR_TOO_MANY_COMMANDS;
+		   return ERR_TOO_MANY_COMMANDS;
 	   } 
 
-	   // Extract command name
-	   char *arg_token = strtok (cmd_token, " ");
+	   // Initialize the current command's executable and argument buffers
+	   memset(clist->commands[cmd_count].exe, 0, EXE_MAX);
+           memset(clist->commands[cmd_count].args, 0, ARG_MAX);
 
+	   char *arg_save_ptr;
+           char *arg_token = strtok_r(cmd_token, " ", &arg_save_ptr);
+	   
 	   if (arg_token == NULL) {
-		   cmd_token = strtok(NULL, PIPE_STRING);  // Move to next command
+		   // Move to next command
+		   cmd_token = strtok_r(NULL, PIPE_STRING, &save_ptr);
 		   continue;
 	   }
 
+	   // Store the executable name in the command list
 	   strncpy (clist->commands[cmd_count].exe, arg_token, EXE_MAX - 1);
-	   
+	   clist->commands[cmd_count].exe[EXE_MAX - 1] = '\0';
+
 	   // Extract arguments
 	   char args_buffer[ARG_MAX] = "";
-	   arg_token = strtok(NULL, "");
 
+	   arg_token = strtok_r(NULL, "", &arg_save_ptr); // Preserve spaces in arguments
+
+	   // Store the arguments in the command list
 	   if (arg_token != NULL) {
 		   strncpy (args_buffer, arg_token, ARG_MAX - 1);
+		   args_buffer[ARG_MAX - 1] = '\0';
 	   }
 	   
 	   // Store parsed values in clist
 	   strncpy (clist->commands[cmd_count].args, args_buffer, ARG_MAX - 1);
-	   
+	   clist->commands[cmd_count].args[ARG_MAX - 1] = '\0';
+
 	   cmd_count++;
 
 	   // Get next command
-	   cmd_token = strtok (NULL, PIPE_STRING);
+	   cmd_token = strtok_r (NULL, PIPE_STRING, &save_ptr);
 
     }
 

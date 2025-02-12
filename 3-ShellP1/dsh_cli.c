@@ -68,13 +68,6 @@ int main()
 		    exit(0);
 	    }
 
-	    /* ********* EXTRA CREDIT: HANDLING "dragon" COMMAND ********* */
-	    if (strcmp (cmd_buff, "dragon") == 0) {
-		    printf("Placeholder \n");
-		    continue;
-	    }
-	    /* *********************************************************** */
-
 	    // Parse command using build_cmd_list
 	    rc = build_cmd_list (cmd_buff, &clist);
 
