@@ -75,7 +75,7 @@ int build_cmd_buff (char *cmd_line, cmd_buff_t *cmd_buff) {
 	for (int i = 0; arg_token[i] != '\0'; i++) {
 		if (arg_token[i] == '"') {
 			arg_in_quotes = !arg_in_quotes;
-			memmove (&arg_token[i], &arg_token [i+1], strlen (&arg_token[i]));
+			memmove (&arg_token[i], &arg_token [i + 1], strlen (&arg_token[i]));
 			i--;
 		}
 	        else if (isspace (arg_token[i]) && !arg_in_quotes) {
@@ -128,11 +128,6 @@ int exec_cmd (cmd_buff_t *cmd) {
 		return WARN_NO_CMDS;  // No command entered
 	}
 
-	//printf("Debug: Parsed Arguments (%d):\n", cmd->argc);
-	//for (int i = 0; i < cmd->argc; i++) {
-		//printf("  argv[%d]: \"%s\"\n", i, cmd->argv[i]);
-	//}
-
 	pid_t pid = fork();
 
 	if (pid < 0) {
@@ -141,8 +136,6 @@ int exec_cmd (cmd_buff_t *cmd) {
 	}
 
 	if (pid == 0) {
-		printf("Executing command: %s\n", cmd->argv[0]);
-		fflush(stdout);
 		execvp (cmd->argv[0], cmd->argv);
 		perror("execvp failed");
 		exit (ERR_EXEC_CMD);
