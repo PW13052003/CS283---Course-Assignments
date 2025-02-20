@@ -52,96 +52,99 @@
  *      fork(), execvp(), exit(), chdir()
  */
 
-int build_cmd_buff(char *cmd_line, command_t *cmd_buff)
-{
-    // Trim trailing spaces
-    while (*cmd_line == SPACE_CHAR) {
-	    cmd_line++;
-    }
-    
-    if (*cmd_line == '\0') {
-	    return WARN_NO_CMDS;
-    }
-    
-    // Initialize the struct
-    memset (cmd_buff, 0, sizeof (command_t));
+int build_cmd_buff (char *cmd_line, cmd_buff_t *cmd_buff) {
 
-    // Tokenize input into argv[]
-    char *save_ptr;
-    char *cmd_token = strtok_r (cmd_line, " ", &save_ptr);
-    int arg_count = 0;
-    bool quotes = false;
-
-    while (cmd_token != NULL && arg_count < CMD_ARGV_MAX - 1) {
-	    // Handle quoted strings
-            if (*cmd_token == '"') {
-		    quotes = true;
-                    cmd_token++;  // Skip the first quote
-            }
-	    
-	    cmd_buff->argv[arg_count] = cmd_token;
-	    arg_count++;
-	    
-	    if (quotes && cmd_token[strlen(cmd_token) - 1] == '"') {
-		    cmd_token[strlen(cmd_token) - 1] = '\0';
-		    quotes = false;
-	    }
-	    
-	    cmd_token = strtok_r (NULL, " ", &save_ptr);
-    }
-
-    cmd_buff->argv[arg_count] = NULL;
-    cmd_buff->argc = arg_count;
-
-    return OK;
-}
-
-Built_In_Cmds exec_built_in_cmd (command_t *cmd) {
-
-	if (cmd->argc == 0) {
-		return BI_NOT_BI;
+	while (*cmd_line == SPACE_CHAR) {
+		cmd_line++;
 	}
 
-	if (strcmp (cmd->argv[0], EXIT_CMD) == 0) {
+	if (*cmd_line == '\0') {
+		return WARN_NO_CMDS;
+	}
+
+	cmd_buff->_cmd_buffer = strdup(cmd_line);
+
+	if (cmd_buff->_cmd_buffer == NULL) {
+		return ERR_MEMORY;
+	}
+
+	cmd_buff->argc = 0;
+	char *arg_token = cmd_buff->_cmd_buffer;
+	bool arg_in_quotes = false;
+
+	for (int i = 0; arg_token[i] != '\0'; i++) {
+		if (arg_token[i] == '"') {
+			arg_in_quotes = !arg_in_quotes;
+			memmove (&arg_token[i], &arg_token [i+1], strlen (&arg_token[i]));
+			i--;
+		}
+	        else if (isspace (arg_token[i]) && !arg_in_quotes) {
+			arg_token[i] = '\0';
+			if (cmd_buff->argc < CMD_ARGV_MAX - 1) {
+				cmd_buff->argv [cmd_buff->argc++] = arg_token;
+			}
+			while (isspace (arg_token [i + 1])) {
+				i++;
+			}
+			arg_token = &arg_token [i + 1];
+		}
+	}
+
+	if (*arg_token != '\0' && cmd_buff->argc < CMD_ARGV_MAX - 1) {
+		cmd_buff->argv[cmd_buff->argc++] = arg_token;
+	}
+
+	cmd_buff->argv[cmd_buff->argc] = NULL;
+
+	return OK;
+}
+
+Built_In_Cmds exec_built_in_cmd (cmd_buff_t *cmd) {
+	if (cmd->argc == 0) {
+		return BI_NOT_BI;  // No command entered
+	}
+
+	// Handle exit command
+	if (strcmp (cmd->argv[0], "exit") == 0) {
 		exit(0);
 	}
 
+	// Handle cd command
 	if (strcmp (cmd->argv[0], "cd") == 0) {
-		
-		if (cmd->argc == 1) {
-			return BI_EXECUTED;
+		if (cmd->argc < 2) {
+			return BI_EXECUTED;  // Do nothing if no argument is given
 		}
-
-		else if (cmd->argc == 2) {
-			if (chdir(cmd->argv[1]) != 0) {
-				perror("cd error");  // Print error if directory change fails
-				return ERR_EXEC_CMD;
-			}
-			return ERR_EXEC_CMD;
+		if (chdir (cmd->argv[1]) != 0) {
+			perror ("cd failed");
 		}
-
-		else {
-			printf ("Too many arguments\n");
-			return ERR_CMD_ARGS_BAD;
-		}
+		return BI_EXECUTED;
 	}
 
 	return BI_NOT_BI;
 }
 
-int exec_cmd (command_t *cmd) {
-	
+int exec_cmd (cmd_buff_t *cmd) {
+	if (cmd->argc == 0) {
+		return WARN_NO_CMDS;  // No command entered
+	}
+
+	//printf("Debug: Parsed Arguments (%d):\n", cmd->argc);
+	//for (int i = 0; i < cmd->argc; i++) {
+		//printf("  argv[%d]: \"%s\"\n", i, cmd->argv[i]);
+	//}
+
 	pid_t pid = fork();
 
 	if (pid < 0) {
-		perror ("Error: fork");
-		return ERR_EXEC_CMD;
+		perror ("fork failed");
+			return ERR_EXEC_CMD;
 	}
 
 	if (pid == 0) {
-		// Execute command
+		printf("Executing command: %s\n", cmd->argv[0]);
+		fflush(stdout);
 		execvp (cmd->argv[0], cmd->argv);
-		perror("Error: exec");
+		perror("execvp failed");
 		exit (ERR_EXEC_CMD);
 	}
 
@@ -153,40 +156,36 @@ int exec_cmd (command_t *cmd) {
 }
 
 int exec_local_cmd_loop() {
-
-	char input_line[SH_CMD_MAX];
-	command_t cmd;
+	char cmd_line [SH_CMD_MAX];
+	cmd_buff_t cmd;
 
 	while (1) {
-		printf("%s", SH_PROMPT);
+		printf ("%s", SH_PROMPT);
 
-		if (fgets (input_line, SH_CMD_MAX, stdin) == NULL) {
+		if (fgets (cmd_line, SH_CMD_MAX, stdin) == NULL) {
 			printf("\n");
 			break;
 		}
 
-		input_line[strcspn (input_line, "\n")] = '\0';
+		// Remove trailing newline
+		cmd_line[strcspn (cmd_line, "\n")] = '\0';
 
-		// Trim spaces and parse command
-		if (build_cmd_buff (input_line, &cmd) == WARN_NO_CMDS) {
-			printf("%s", CMD_WARN_NO_CMD);
+		// Parse the command into cmd_buff_t
+		if (build_cmd_buff (cmd_line, &cmd) != OK) {
+			printf ("%s", CMD_WARN_NO_CMD);
 			continue;
 		}
 
-		// Check for built in commands
+		// Check if command is built-in (cd, exit)
 		Built_In_Cmds bi_cmd = exec_built_in_cmd(&cmd);
-
 		if (bi_cmd == BI_EXECUTED) {
-			continue;
+			continue; // Built-in command executed, go to next loop iteration
 		}
 
-		// If not built in, execute it using fork or execvp
-		exec_cmd(&cmd);
+		// Execute external command
+		exec_cmd (&cmd);
 	}
 
 	return OK;
 }
-
-	
-
 
