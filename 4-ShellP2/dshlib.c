@@ -53,6 +53,13 @@
  */
 
 
+/* *********************************************************** 
+ * FUNCTION NAME: build_cmd_buff()
+ * PARAMETER(S): char *cmd_line, cmd_buff_t *cmd_buff
+ * RETURN VALUE(S): STANDARD RETURN CODES
+ * PURPOSE: To handle quoted arguments
+ * ******************************************************** */
+
 int build_cmd_buff (char *cmd_line, cmd_buff_t *cmd_buff) {
 	while (*cmd_line == SPACE_CHAR) {
 		cmd_line++;
@@ -124,6 +131,13 @@ int build_cmd_buff (char *cmd_line, cmd_buff_t *cmd_buff) {
 }
 
 
+/* *********************************************************** 
+ * FUNCTION NAME: Built_In_Cmds exec_built_in_cmd()
+ * PARAMETER(S): cmd_buff_t *cmd
+ * RETURN VALUE(S): STANDARD RETURN CODES
+ * PURPOSE: Handles built-in commands
+ * ******************************************************** */
+
 Built_In_Cmds exec_built_in_cmd (cmd_buff_t *cmd) {
 	if (cmd->argc == 0) {
 		return BI_NOT_BI;  // No command entered
@@ -148,30 +162,50 @@ Built_In_Cmds exec_built_in_cmd (cmd_buff_t *cmd) {
 	return BI_NOT_BI;
 }
 
+
+/* ***********************************************************
+ * FUNCTION NAME: exec_cmd()
+ * PARAMETER(S): cmd_buff_t *cmd
+ * RETURN VALUE(S): STANDARD RETURN CODES
+ * PURPOSE: Executes an external command using fork-exec 
+ * ******************************************************** */
+
 int exec_cmd (cmd_buff_t *cmd) {
 	if (cmd->argc == 0) {
 		return WARN_NO_CMDS;  // No command entered
 	}
 
+	// Create a new child process using fork()
 	pid_t pid = fork();
 
+	// Check if fork() failed
 	if (pid < 0) {
 		perror ("fork failed");
 			return ERR_EXEC_CMD;
 	}
 
+	// Child process execution
 	if (pid == 0) {
 		execvp (cmd->argv[0], cmd->argv);
 		perror("execvp failed");
 		exit (ERR_EXEC_CMD);
 	}
 
+	// Parent process execution
 	else {
 		int status;
 		waitpid (pid, &status, 0);
 		return WEXITSTATUS(status);
 	}
 }
+
+
+/* ***********************************************************
+ * FUNCTION NAME: exec_local_cmd_loop()
+ * PARAMETER(S): NONE
+ * RETURN VALUE(S): STANDARD RETURN CODES
+ * PURPOSE: Implements the main shell loop
+ * ******************************************************** */
 
 int exec_local_cmd_loop() {
 	char cmd_line [SH_CMD_MAX];
