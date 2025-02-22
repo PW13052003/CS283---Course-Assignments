@@ -52,8 +52,8 @@
  *      fork(), execvp(), exit(), chdir()
  */
 
-int build_cmd_buff (char *cmd_line, cmd_buff_t *cmd_buff) {
 
+int build_cmd_buff (char *cmd_line, cmd_buff_t *cmd_buff) {
 	while (*cmd_line == SPACE_CHAR) {
 		cmd_line++;
 	}
@@ -62,42 +62,67 @@ int build_cmd_buff (char *cmd_line, cmd_buff_t *cmd_buff) {
 		return WARN_NO_CMDS;
 	}
 
+	// Duplicate command line for processing
 	cmd_buff->_cmd_buffer = strdup(cmd_line);
-
 	if (cmd_buff->_cmd_buffer == NULL) {
 		return ERR_MEMORY;
 	}
 
 	cmd_buff->argc = 0;
 	char *arg_token = cmd_buff->_cmd_buffer;
-	bool arg_in_quotes = false;
 
-	for (int i = 0; arg_token[i] != '\0'; i++) {
-		if (arg_token[i] == '"') {
-			arg_in_quotes = !arg_in_quotes;
-			memmove (&arg_token[i], &arg_token [i + 1], strlen (&arg_token[i]));
-			i--;
+	while (*arg_token) {
+		// Skip leading spaces before a new argument
+		while (isspace (*arg_token)) {
+			arg_token++;
 		}
-	        else if (isspace (arg_token[i]) && !arg_in_quotes) {
-			arg_token[i] = '\0';
-			if (cmd_buff->argc < CMD_ARGV_MAX - 1) {
-				cmd_buff->argv [cmd_buff->argc++] = arg_token;
+
+		if (*arg_token == '\0') {
+			break;
+		}
+
+		// Handle quotes arguments
+		if (*arg_token == '"' || *arg_token == '\'') {
+			char quote_char = *arg_token++;
+			cmd_buff->argv[cmd_buff->argc++] = arg_token;
+
+			// Find the matching closing quote
+			while (*arg_token && *arg_token != quote_char) {
+				arg_token++;
 			}
-			while (isspace (arg_token [i + 1])) {
-				i++;
+
+			if (*arg_token) {
+				*arg_token = '\0';
+				arg_token++;
 			}
-			arg_token = &arg_token [i + 1];
+		} 
+
+		// Handle normal arguments
+		else {
+			cmd_buff->argv[cmd_buff->argc++] = arg_token;
+
+			while (*arg_token && !isspace (*arg_token)) {
+				arg_token++;
+			}
+
+			if (*arg_token) {
+				*arg_token = '\0';
+				arg_token++;
+			}
+		}
+
+		// Avoid overflow
+		if (cmd_buff->argc >= CMD_ARGV_MAX - 1) {
+			break;
 		}
 	}
 
-	if (*arg_token != '\0' && cmd_buff->argc < CMD_ARGV_MAX - 1) {
-		cmd_buff->argv[cmd_buff->argc++] = arg_token;
-	}
-
+	// Null terminate argv list
 	cmd_buff->argv[cmd_buff->argc] = NULL;
 
 	return OK;
 }
+
 
 Built_In_Cmds exec_built_in_cmd (cmd_buff_t *cmd) {
 	if (cmd->argc == 0) {
