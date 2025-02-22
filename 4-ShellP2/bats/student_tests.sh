@@ -1,5 +1,9 @@
 #!/usr/bin/env bats
 
+# File: student_tests.sh
+#
+# Create your unit tests suit in this file
+
 @test "Basic command execution without arguments -> ls" {
 	run "./dsh" <<EOF
 ls
