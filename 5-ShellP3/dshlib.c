@@ -101,6 +101,76 @@ int build_cmd_list (char *cmd_line, command_list_t *clist) {
 			return ERR_MEMORY;
 		}
 
+		char *arg_token = cmd->_cmd_buffer;
+		int arg_in_quotes = 0;
+		char quote_char = '\0';
+
+		cmd->argc = 0;
+
+		while (*arg_token) {
+			
+			// Skip leading spaces
+			while (*arg_token == SPACE_CHAR && !arg_in_quotes) {
+				arg_token++;
+			}
+
+			if (*arg_token == '\0') {
+				break;
+			}
+
+			// Handle quoted arguments
+			if (*arg_token == '"' || *arg_token == '\'') {
+				arg_in_quotes = 1;
+				quote_char = *arg_token++;
+			        cmd->argv[cmd->argc++] = arg_token;
+
+				// Find closing quote
+				while (*arg_token && *arg_token != quote_char) {
+					arg_token++;
+				}
+
+				if (*arg_token) {
+					*arg_token = '\0';
+					arg_token++;
+				}
+
+			}
+
+			else {
+				// Normal argument
+				cmd->argv[cmd->argc++] = arg_token;
+
+				while (*arg_token && !isspace (*arg_token)) {
+					arg_token++;
+				}
+
+				if (*arg_token) {
+					*arg_token = '\0';
+					arg_token++;
+				}
+			}
+
+			// Prevent overflow
+			if (cmd->argc >= CMD_ARGV_MAX - 1) {
+				break;
+			}
+		}
+
+		cmd->argv[cmd->argc] = NULL;
+
+		cmd_count++;
+
+		cmd_token = strtok_r(NULL, PIPE_STRING, &save_ptr);
+	}
+
+	// Store the number of commands parsed
+    	clist->num = cmd_count;
+    	return OK;	
+}
+
+
+		
+		/*
 		char *arg_save_ptr;
 		char *arg_token = strtok_r (cmd->_cmd_buffer, " ", &arg_save_ptr);
 
@@ -131,7 +201,7 @@ int build_cmd_list (char *cmd_line, command_list_t *clist) {
 	clist->num = cmd_count;
 	return OK;
 }
-
+*/
 
 /* *********************************************************** 
  * FUNCTION NAME: Built_In_Cmds exec_built_in_cmd()
