@@ -169,39 +169,6 @@ int build_cmd_list (char *cmd_line, command_list_t *clist) {
 }
 
 
-		
-		/*
-		char *arg_save_ptr;
-		char *arg_token = strtok_r (cmd->_cmd_buffer, " ", &arg_save_ptr);
-
-		if (arg_token == NULL) {
-			cmd_token = strtok_r (NULL, PIPE_STRING, &save_ptr);
-			continue;
-		}
-
-		// Store the executable name
-		cmd->argv[0] = strdup (arg_token);
-		cmd->argc = 1;
-
-		// Extract remaining arguments
-		while ((arg_token = strtok_r (NULL, " ", &arg_save_ptr)) != NULL) {
-			if (cmd->argc < CMD_ARGV_MAX - 1) {
-				cmd->argv[cmd->argc++] = strdup (arg_token);
-			}
-		}
-
-		// Null terminate the argument list
-		cmd->argv[cmd->argc] = NULL;
-
-		cmd_count++;
-		cmd_token = strtok_r (NULL, PIPE_STRING, &save_ptr);
-	}
-
-	// Store the number of commands parsed
-	clist->num = cmd_count;
-	return OK;
-}
-*/
 
 /* *********************************************************** 
  * FUNCTION NAME: Built_In_Cmds exec_built_in_cmd()
