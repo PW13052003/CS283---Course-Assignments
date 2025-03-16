@@ -138,7 +138,6 @@ int boot_server(char *ifaces, int port){
     memset (&addr, 0, sizeof (addr));
     addr.sin_family = AF_INET;
     addr.sin_port = htons (port);
-    //addr.sin_addr.s_addr = inet_addr (ifaces);
 
     // Convert IP address from text to binary form
     if (inet_pton (AF_INET, ifaces, &addr.sin_addr) <= 0) {
@@ -154,8 +153,6 @@ int boot_server(char *ifaces, int port){
 	    close (svr_socket);
 	    return ERR_RDSH_COMMUNICATION;
     }
-
-    printf("[DEBUG] Calling listen() on socket %d\n", svr_socket);
 
     // Set the socket to listen mode
     ret = listen (svr_socket, 20);
@@ -217,16 +214,11 @@ int process_cli_requests(int svr_socket){
     while(1) {
 	    printf ("[INFO] Waiting for client connections...\n");
 
-	    printf("[DEBUG] Ready to accept() connections...\n");
-
 	    cli_socket = accept (svr_socket, NULL, NULL);
 	    if (cli_socket < 0) {
 		    perror ("accept failed");
 		    return ERR_RDSH_COMMUNICATION;
 	    }
-
-	    printf("[DEBUG] Client connection accepted! Socket FD: %d\n", cli_socket);
-	    //printf("[DEBUG] Client connection accepted!\n");
 
 	    printf ("[INFO] Client connected. Processing requests...\n");
 
